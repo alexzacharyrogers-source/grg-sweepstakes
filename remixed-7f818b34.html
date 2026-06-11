@@ -1,0 +1,901 @@
+<div id="root"><div style="font-family:sans-serif;color:#8FB3A2;text-align:center;padding:60px 20px">Loading sweepstake…</div></div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+  :root {
+    --bg:#0A1410;--bg2:#0D1C16;--panel:#102A20;--panel2:#15382A;
+    --line:#2E7D5B;--lineSoft:rgba(46,125,91,0.35);
+    --grass:#1FB873;--grassDim:#169063;
+    --gold:#F2C14E;--goldDim:#C99A2E;
+    --silver:#C7D3CC;--bronze:#D8956A;
+    --text:#EAF2EC;--muted:#8FB3A2;--danger:#E2574C;
+    --display:'Oswald',sans-serif;--body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg)}
+  body{font-family:var(--body);color:var(--text);min-height:100vh;
+    background:radial-gradient(at 50% -10%,rgba(31,184,115,.10),transparent 55%),
+    repeating-linear-gradient(180deg,var(--bg) 0 46px,var(--bg2) 46px 92px);
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:740px;margin:0 auto;padding:24px 18px 60px}
+  .scoreboard{border:1px solid var(--lineSoft);border-radius:16px;
+    background:linear-gradient(180deg,var(--panel2),var(--panel));
+    padding:22px 22px 18px;margin-bottom:18px;position:relative;overflow:hidden}
+  .eyebrow{font-family:var(--display);text-transform:uppercase;letter-spacing:.28em;font-size:12px;color:var(--grass);font-weight:600}
+  .title{font-family:var(--display);font-weight:700;font-size:38px;line-height:1;text-transform:uppercase;margin:4px 0 2px}
+  .title .gold{color:var(--gold)}
+  .tagline{color:var(--muted);font-size:13px}
+  .adminPill{position:absolute;top:18px;right:18px;font-family:var(--display);text-transform:uppercase;
+    letter-spacing:.14em;font-size:11px;font-weight:600;padding:5px 11px;border-radius:999px;
+    border:1px solid var(--goldDim);color:var(--gold);background:rgba(242,193,78,.08);display:none}
+  .tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+  .tab{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:13px;font-weight:500;
+    padding:9px 16px;border-radius:10px;border:1px solid var(--lineSoft);background:var(--panel);
+    color:var(--muted);cursor:pointer;transition:all .15s}
+  .tab:hover{color:var(--text);border-color:var(--line)}
+  .tab.active{background:var(--grassDim);color:#fff;border-color:var(--grass)}
+  .tab.adminOnly{display:none}
+  .panel{border:1px solid var(--lineSoft);border-radius:14px;background:var(--panel);padding:22px}
+  .view{display:none}.view.active{display:block}
+  h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-size:17px;margin-bottom:4px}
+  .hint{color:var(--muted);font-size:13px;margin-bottom:16px;line-height:1.5}
+  label.fld{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 6px;font-weight:500}
+  input,select{width:100%;padding:11px 13px;font-size:15px;font-family:var(--body);border-radius:10px;
+    border:1px solid var(--lineSoft);background:var(--bg2);color:var(--text)}
+  input:focus,select:focus{outline:none;border-color:var(--grass)}
+  select option{background:var(--panel)}
+  button.btn{width:100%;padding:13px;cursor:pointer;font-family:var(--display);text-transform:uppercase;
+    letter-spacing:.1em;font-weight:600;font-size:15px;border-radius:10px;border:none;
+    background:var(--grass);color:#06180F}
+  button.btn:hover{filter:brightness(1.08)}
+  button.btn.gold{background:var(--gold);color:#2A1E00}
+  button.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--lineSoft)}
+  button.btn.ghost:hover{border-color:var(--line);background:var(--panel2)}
+  button.btn.danger{background:transparent;border:1px solid rgba(226,87,76,.5);color:var(--danger)}
+  button.btn.danger:hover{background:rgba(226,87,76,.12)}
+  button.btn:disabled{opacity:.45;cursor:not-allowed}
+  .msg{font-size:13px;padding:10px 13px;border-radius:10px;margin-top:12px;line-height:1.45}
+  .msg.ok{background:rgba(31,184,115,.13);color:#7DE6B6;border:1px solid rgba(31,184,115,.3)}
+  .msg.err{background:rgba(226,87,76,.12);color:#F2A199;border:1px solid rgba(226,87,76,.35)}
+  .msg.info{background:rgba(242,193,78,.10);color:var(--gold);border:1px solid rgba(242,193,78,.3)}
+  .reveal{margin-top:18px;text-align:center;border:1px solid var(--lineSoft);border-radius:16px;
+    background:radial-gradient(at 50% 0%,rgba(31,184,115,.12),transparent 70%),var(--bg2);padding:28px 20px}
+  .reveal .pot{font-family:var(--display);text-transform:uppercase;letter-spacing:.2em;font-size:12px;color:var(--grass)}
+  .reveal .ctry{font-family:var(--display);font-weight:700;font-size:30px;text-transform:uppercase}
+  .reveal .who{color:var(--muted);font-size:14px;margin-top:6px}
+  .reveal .who b{color:var(--gold)}
+  @keyframes drawIn{0%{transform:scale(.2) rotate(-180deg);opacity:0}60%{transform:scale(1.15) rotate(8deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+  .lb{display:flex;flex-direction:column;gap:8px}
+  .row{display:grid;grid-template-columns:44px 1fr auto;align-items:center;gap:12px;
+    padding:12px 14px;border-radius:12px;border:1px solid var(--lineSoft);background:var(--bg2)}
+  .row.r1{border-color:var(--goldDim);background:linear-gradient(90deg,rgba(242,193,78,.10),var(--bg2))}
+  .row.r1 .rank{color:var(--gold)}
+  .row.r2 .rank{color:var(--silver)}
+  .row.r3 .rank{color:var(--bronze)}
+  .row .rank{font-family:var(--display);font-weight:700;font-size:22px;text-align:center;color:var(--muted)}
+  .row .who2{display:flex;align-items:center;gap:11px;min-width:0}
+  .row .who2 .nm .name{font-weight:600;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .row .who2 .nm .country{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .row .pts{font-family:var(--display);font-weight:700;font-size:26px;color:var(--grass)}
+  .row .pts small{font-size:11px;color:var(--muted);display:block;text-align:right;letter-spacing:.1em;font-weight:500}
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px}
+  .vs{display:grid;grid-template-columns:1fr 64px 1fr;gap:10px;align-items:end}
+  .vs .score input{text-align:center;font-family:var(--display);font-size:22px;padding:9px 4px}
+  .vs .dash{text-align:center;font-family:var(--display);font-size:26px;color:var(--muted);padding-bottom:8px}
+  .stagePick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .stagePick button{flex:1;min-width:78px;padding:8px 6px;cursor:pointer;font-family:var(--display);
+    text-transform:uppercase;font-size:12px;font-weight:500;border-radius:8px;
+    border:1px solid var(--lineSoft);background:var(--bg2);color:var(--muted)}
+  .stagePick button.on{background:var(--grassDim);color:#fff;border-color:var(--grass)}
+  .manageRow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:11px 13px;border-radius:10px;background:var(--bg2);border:1px solid var(--lineSoft);margin-bottom:8px}
+  .manageRow .info{display:flex;align-items:center;gap:10px;font-size:14px;min-width:0;flex:1}
+  .manageRow .country{color:var(--muted);font-size:12px}
+  .manageRow .actions{display:flex;gap:6px;flex-shrink:0}
+  .icoBtn{background:transparent;border:1px solid var(--lineSoft);color:var(--muted);
+    border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px;white-space:nowrap}
+  .icoBtn:hover{border-color:var(--line);color:var(--text)}
+  .icoBtn.edit{border-color:rgba(242,193,78,.4);color:var(--gold)}
+  .xBtn{background:transparent;border:1px solid rgba(226,87,76,.4);color:var(--danger);
+    border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+  .modalBg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;
+    align-items:center;justify-content:center;padding:20px}
+  .modalBg.open{display:flex}
+  .modal{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:24px;width:100%;max-width:420px}
+  .modal h3{margin-bottom:14px}
+  .modal .field{margin-bottom:14px}
+  .modalBtns{display:flex;gap:10px;margin-top:18px}
+  .modalBtns button{flex:1}
+  .gameCard{background:var(--bg2);border:1px solid var(--lineSoft);border-radius:12px;padding:13px 16px}
+  .gameCard .gcTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .gameCard .gcStage{font-family:var(--display);font-size:11px;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--grass);font-weight:600}
+  .gameCard .gcTime{font-size:11px;color:var(--muted)}
+  .gameCard .gcMatch{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+  .gameCard .gcTeam{display:flex;align-items:center;gap:8px}
+  .gameCard .gcTeam.away{flex-direction:row-reverse;text-align:right}
+  .gameCard .gcScore{text-align:center}
+  .gameCard .gcScore .sc{font-family:var(--display);font-size:28px;font-weight:700;line-height:1}
+  .gameCard .gcScore .pts{font-size:11px;color:var(--muted);margin-top:3px}
+  .gameCard .gcAdmin{display:flex;gap:6px;justify-content:flex-end;margin-top:10px;
+    border-top:1px solid var(--lineSoft);padding-top:10px}
+  .gamesLog{display:flex;flex-direction:column;gap:10px}
+  .logFilters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .logFilters button{padding:6px 12px;font-family:var(--display);text-transform:uppercase;
+    font-size:11px;font-weight:500;border-radius:8px;
+    border:1px solid var(--lineSoft);background:var(--bg2);color:var(--muted);cursor:pointer}
+  .logFilters button.on{background:var(--grassDim);color:#fff;border-color:var(--grass)}
+  .syncPanel{border:1px solid rgba(242,193,78,.3);border-radius:14px;
+    background:linear-gradient(135deg,rgba(242,193,78,.07),rgba(31,184,115,.05));
+    padding:18px 20px;margin-bottom:16px}
+  .syncPanel h4{font-family:var(--display);text-transform:uppercase;letter-spacing:.1em;font-size:14px;
+    color:var(--gold);margin-bottom:6px}
+  .syncPanel p{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+  .syncRow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .syncRow .btn{width:auto;padding:10px 18px;font-size:13px}
+  .syncStatus{font-size:12px;color:var(--muted);flex:1;min-width:120px}
+  .syncStatus .dot{display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--grass);box-shadow:0 0 6px var(--grass);margin-right:6px;vertical-align:middle}
+  .syncStatus .dotOff{display:inline-block;width:7px;height:7px;border-radius:50%;
+    background:var(--muted);margin-right:6px;vertical-align:middle}
+  .syncLog{margin-top:14px;font-size:12px;color:var(--muted);background:var(--bg2);
+    border-radius:10px;padding:12px;max-height:180px;overflow-y:auto;line-height:1.8;
+    border:1px solid var(--lineSoft)}
+  .syncLog .added{color:#7DE6B6}
+  .syncLog .skip{color:var(--muted)}
+  .syncLog .warn{color:var(--gold)}
+  .bar{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+  .bar .grow{flex:1}
+  .sync2{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;display:flex;align-items:center;gap:6px}
+  .sync2 .led{width:7px;height:7px;border-radius:50%;background:var(--grass);box-shadow:0 0 8px var(--grass)}
+  .divider{height:1px;background:var(--lineSoft);margin:20px 0;border:none}
+  .scoring{font-size:13px;color:var(--muted);line-height:1.9}
+  .scoring b{color:var(--gold);font-family:var(--display)}
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+</style>
+
+<script>
+(function(){
+"use strict";
+
+var COUNTRIES=[
+  {n:"Canada",f:"🇨🇦"},{n:"Mexico",f:"🇲🇽"},{n:"United States",f:"🇺🇸"},
+  {n:"Australia",f:"🇦🇺"},{n:"Iran",f:"🇮🇷"},{n:"Iraq",f:"🇮🇶"},{n:"Japan",f:"🇯🇵"},
+  {n:"Jordan",f:"🇯🇴"},{n:"Qatar",f:"🇶🇦"},{n:"Saudi Arabia",f:"🇸🇦"},{n:"South Korea",f:"🇰🇷"},
+  {n:"Uzbekistan",f:"🇺🇿"},{n:"Algeria",f:"🇩🇿"},{n:"Cabo Verde",f:"🇨🇻"},{n:"DR Congo",f:"🇨🇩"},
+  {n:"Côte d'Ivoire",f:"🇨🇮"},{n:"Egypt",f:"🇪🇬"},{n:"Ghana",f:"🇬🇭"},{n:"Morocco",f:"🇲🇦"},
+  {n:"Senegal",f:"🇸🇳"},{n:"South Africa",f:"🇿🇦"},{n:"Tunisia",f:"🇹🇳"},
+  {n:"Curaçao",f:"🇨🇼"},{n:"Haiti",f:"🇭🇹"},{n:"Panama",f:"🇵🇦"},
+  {n:"Argentina",f:"🇦🇷"},{n:"Brazil",f:"🇧🇷"},{n:"Colombia",f:"🇨🇴"},{n:"Ecuador",f:"🇪🇨"},
+  {n:"Paraguay",f:"🇵🇾"},{n:"Uruguay",f:"🇺🇾"},{n:"New Zealand",f:"🇳🇿"},
+  {n:"Austria",f:"🇦🇹"},{n:"Belgium",f:"🇧🇪"},{n:"Bosnia & Herzegovina",f:"🇧🇦"},{n:"Croatia",f:"🇭🇷"},
+  {n:"Czechia",f:"🇨🇿"},{n:"England",f:"🏴󠁧󠁢󠁥󠁮󠁧󠁿"},{n:"France",f:"🇫🇷"},{n:"Germany",f:"🇩🇪"},
+  {n:"Netherlands",f:"🇳🇱"},{n:"Norway",f:"🇳🇴"},{n:"Portugal",f:"🇵🇹"},{n:"Scotland",f:"🏴󠁧󠁢󠁳󠁣󠁴󠁿"},
+  {n:"Spain",f:"🇪🇸"},{n:"Sweden",f:"🇸🇪"},{n:"Switzerland",f:"🇨🇭"},{n:"Turkey",f:"🇹🇷"}
+];
+var FLAG_CODES={
+  "Canada":"ca","Mexico":"mx","United States":"us","Australia":"au","Iran":"ir","Iraq":"iq",
+  "Japan":"jp","Jordan":"jo","Qatar":"qa","Saudi Arabia":"sa","South Korea":"kr","Uzbekistan":"uz",
+  "Algeria":"dz","Cabo Verde":"cv","DR Congo":"cd","Côte d'Ivoire":"ci","Egypt":"eg","Ghana":"gh",
+  "Morocco":"ma","Senegal":"sn","South Africa":"za","Tunisia":"tn","Curaçao":"cw","Haiti":"ht",
+  "Panama":"pa","Argentina":"ar","Brazil":"br","Colombia":"co","Ecuador":"ec","Paraguay":"py",
+  "Uruguay":"uy","New Zealand":"nz","Austria":"at","Belgium":"be","Bosnia & Herzegovina":"ba",
+  "Croatia":"hr","Czechia":"cz","England":"gb-eng","France":"fr","Germany":"de","Netherlands":"nl",
+  "Norway":"no","Portugal":"pt","Scotland":"gb-sct","Spain":"es","Sweden":"se","Switzerland":"ch","Turkey":"tr"
+};
+function getFlag(country,size){
+  size=size||28;
+  var code=FLAG_CODES[country];
+  var c=null;
+  for(var i=0;i<COUNTRIES.length;i++){if(COUNTRIES[i].n===country){c=COUNTRIES[i];break;}}
+  var emoji=c?c.f:"🏳";
+  if(!code)return'<span style="font-size:'+size+'px;line-height:1">'+emoji+'</span>';
+  return'<img src="https://flagcdn.com/w40/'+code+'.png" width="'+size+'" height="'+Math.round(size*0.75)+'" style="border-radius:3px;object-fit:cover;vertical-align:middle" alt="'+country+'">';
+}
+
+var ADMIN_CODE="GRG-ADMIN";
+var STAGES={
+  group:{label:"Group Stage",win:3,draw:1},
+  r32:{label:"Round of 32",win:5,draw:0},
+  r16:{label:"Round of 16",win:8,draw:0},
+  qf:{label:"Quarter-final",win:12,draw:0},
+  sf:{label:"Semi-final",win:16,draw:0},
+  final:{label:"Final",win:20,draw:0}
+};
+var GOAL_PT=1;
+
+var SEED=[
+  {name:"Adam",               country:"Australia"},
+  {name:"Alex",               country:"Haiti"},
+  {name:"Alexandra Schöner",  country:"Saudi Arabia"},
+  {name:"Amer",               country:"Japan"},
+  {name:"Andi Oberhauser",    country:"Uruguay"},
+  {name:"Detlev",             country:"Sweden"},
+  {name:"Florian",            country:"Iran"},
+  {name:"Geoff Risi",         country:"Canada"},
+  {name:"Julia",              country:"Colombia"},
+  {name:"Julie",              country:"England"},
+  {name:"Klaus",              country:"Scotland"},
+  {name:"Robert",             country:"Turkey"},
+  {name:"Sabine",             country:"Belgium"},
+  {name:"Tyler",              country:"Côte d'Ivoire"},
+  {name:"Viktoria Salzbrunn", country:"United States"}
+];
+
+var STATE={participants:[],log:[]};
+var IS_ADMIN=false;
+var activeTab="table";
+var pickedStage="group";
+var logFilter="all";
+var lastSnap="";
+var mfb={};
+var editingId=null;
+var syncLines=[];
+
+function sGet(k,sh){
+  if(!window.storage)return Promise.resolve(mfb[k]||null);
+  return window.storage.get(k,sh).then(function(r){return r?r.value:null;}).catch(function(){return mfb[k]||null;});
+}
+function sSet(k,v,sh){
+  mfb[k]=v;
+  if(!window.storage)return Promise.resolve();
+  return window.storage.set(k,v,sh).catch(function(){});
+}
+
+function findCountry(name){
+  for(var i=0;i<COUNTRIES.length;i++){if(COUNTRIES[i].n===name)return COUNTRIES[i];}
+  return null;
+}
+
+function loadState(){
+  return sGet("tournament",true).then(function(raw){
+    if(raw){
+      try{var parsed=JSON.parse(raw);if(parsed&&typeof parsed==="object")STATE=parsed;}catch(e){}
+    }
+    if(!STATE.participants)STATE.participants=[];
+    if(!STATE.log)STATE.log=[];
+    // Migration: ensure every SEED person exists (never wipes existing data)
+    var changed=false;
+    for(var i=0;i<SEED.length;i++){
+      var s=SEED[i];
+      var exists=false;
+      for(var j=0;j<STATE.participants.length;j++){
+        if(STATE.participants[j].name.toLowerCase()===s.name.toLowerCase()){exists=true;break;}
+      }
+      if(!exists){
+        var c=findCountry(s.country);
+        STATE.participants.push({id:"p_"+i+"_"+Math.floor(Math.random()*100000),name:s.name,country:s.country,flag:c?c.f:"🏳",points:0});
+        changed=true;
+      }
+    }
+    var p1=changed?saveState():Promise.resolve();
+    return p1.then(function(){return sGet("admin",false);}).then(function(adm){IS_ADMIN=(adm==="yes");});
+  });
+}
+function saveState(){
+  lastSnap=JSON.stringify(STATE);
+  return sSet("tournament",lastSnap,true);
+}
+
+function usedCountries(){return STATE.participants.map(function(p){return p.country;});}
+function byPoints(){
+  return STATE.participants.slice().sort(function(a,b){
+    if(b.points!==a.points)return b.points-a.points;
+    return a.name.localeCompare(b.name);
+  });
+}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function fmtTime(ts){
+  if(!ts)return"";
+  var d=new Date(ts);
+  return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"})+' '+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+}
+
+/* ===== RENDER ===== */
+function render(){
+  document.getElementById("root").innerHTML=
+    '<canvas id="confetti"></canvas>'+
+    '<div class="wrap">'+
+      '<div class="scoreboard">'+
+        '<div class="adminPill" id="adminPill">★ Admin</div>'+
+        '<div class="eyebrow">Office sweepstake · GRG</div>'+
+        '<div class="title">World Cup <span class="gold">2026</span></div>'+
+        '<div class="tagline">Draw a nation · climb the table · lift the trophy.</div>'+
+      '</div>'+
+      '<div class="tabs">'+
+        '<button class="tab" data-tab="join">Join</button>'+
+        '<button class="tab" data-tab="table">Table</button>'+
+        '<button class="tab" data-tab="games">Games</button>'+
+        '<button class="tab adminOnly" data-tab="result">Record result</button>'+
+        '<button class="tab adminOnly" data-tab="manage">Manage</button>'+
+        '<button class="tab adminOnly" data-tab="sync">⚡ Auto-sync</button>'+
+        '<button class="tab" data-tab="admin"><span style="color:var(--gold)">★</span> Admin</button>'+
+      '</div>'+
+      '<div class="view" id="v-join">'+vJoin()+'</div>'+
+      '<div class="view" id="v-table">'+vTable()+'</div>'+
+      '<div class="view" id="v-games">'+vGames()+'</div>'+
+      '<div class="view" id="v-result">'+vResult()+'</div>'+
+      '<div class="view" id="v-manage">'+vManage()+'</div>'+
+      '<div class="view" id="v-sync">'+vSync()+'</div>'+
+      '<div class="view" id="v-admin">'+vAdmin()+'</div>'+
+    '</div>'+
+    editModalHtml();
+  wireAll();
+  showTab(activeTab);
+  applyAdmin();
+}
+
+function applyAdmin(){
+  var tabs=document.querySelectorAll(".adminOnly");
+  for(var i=0;i<tabs.length;i++)tabs[i].style.display=IS_ADMIN?"inline-block":"none";
+  var p=document.getElementById("adminPill");
+  if(p)p.style.display=IS_ADMIN?"block":"none";
+}
+
+/* ===== VIEWS ===== */
+function vJoin(){
+  var rem=COUNTRIES.length-STATE.participants.length;
+  return'<div class="panel">'+
+    '<h3>Enter the draw</h3>'+
+    '<p class="hint">Type your name and a nation gets pulled at random. '+(rem>0?'<b style="color:var(--grass)">'+rem+'</b> nations left.':'The pot is empty.')+'</p>'+
+    '<label class="fld">Your name</label>'+
+    '<input id="joinName" placeholder="e.g. Robert" maxlength="40" '+(rem<=0?'disabled':'')+'/>'+
+    '<div style="height:12px"></div>'+
+    '<button class="btn" id="joinBtn" '+(rem<=0?'disabled':'')+'>🎲 Draw my nation</button>'+
+    '<div id="joinReveal"></div><div id="joinMsg"></div>'+
+  '</div>';
+}
+
+function vTable(){
+  var list=byPoints();
+  var games=STATE.log.length;
+  return'<div class="panel">'+
+    '<div class="bar">'+
+      '<div class="grow"><h3 style="margin:0">Standings</h3></div>'+
+      '<div class="sync2"><span class="led"></span>'+games+' result'+(games===1?'':'s')+'</div>'+
+      '<button class="btn ghost" style="width:auto;padding:9px 14px;font-size:12px" id="refreshBtn">↻ Refresh</button>'+
+    '</div>'+
+    '<div class="lb" id="lbList">'+renderRows(list)+'</div>'+
+  '</div>';
+}
+
+function renderRows(list){
+  if(!list.length)return'<div class="empty">No one has entered yet.<br>Be first in the <b>Join</b> tab.</div>';
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i],r=i+1;
+    var cls=r===1?'r1':r===2?'r2':r===3?'r3':'';
+    var medal=r===1?'🥇':r===2?'🥈':r===3?'🥉':r;
+    html+='<div class="row '+cls+'" data-id="'+p.id+'">'+
+      '<div class="rank">'+medal+'</div>'+
+      '<div class="who2">'+getFlag(p.country,30)+
+        '<div class="nm"><div class="name">'+esc(p.name)+'</div><div class="country">'+esc(p.country)+'</div></div></div>'+
+      '<div class="pts">'+p.points+'<small>pts</small></div>'+
+    '</div>';
+  }
+  return html;
+}
+
+function vGames(){
+  var filters=["all"].concat(Object.keys(STAGES));
+  var log=STATE.log.slice().reverse();
+  if(logFilter!=="all")log=log.filter(function(g){return g.stage===logFilter;});
+  var fhtml='';
+  for(var i=0;i<filters.length;i++){
+    var f=filters[i];
+    fhtml+='<button data-lf="'+f+'" class="'+(f===logFilter?'on':'')+'">'+(f==="all"?"All":STAGES[f].label)+'</button>';
+  }
+  return'<div class="panel">'+
+    '<div class="bar"><div class="grow"><h3 style="margin:0">Match Log</h3></div>'+
+      '<div class="sync2"><span class="led"></span>'+STATE.log.length+' result'+(STATE.log.length===1?'':'s')+'</div></div>'+
+    '<div class="logFilters">'+fhtml+'</div>'+
+    '<div class="gamesLog" id="gamesLog">'+renderGameCards(log)+'</div>'+
+  '</div>';
+}
+
+function renderGameCards(log){
+  if(!log.length)return'<div class="empty">No matches logged yet.</div>';
+  var html='';
+  for(var i=0;i<log.length;i++){
+    var g=log[i];
+    var idx=STATE.log.indexOf(g);
+    var aWin=g.aScore>g.bScore,bWin=g.bScore>g.aScore;
+    var stageLabel=(STAGES[g.stage]?STAGES[g.stage].label:g.stage);
+    var autoTag=g.auto?'<span style="font-size:10px;background:rgba(31,184,115,.2);color:var(--grass);padding:2px 7px;border-radius:6px;margin-left:6px;font-family:var(--display)">AUTO</span>':'';
+    html+='<div class="gameCard">'+
+      '<div class="gcTop"><span class="gcStage">'+stageLabel+autoTag+'</span><span class="gcTime">'+fmtTime(g.t)+'</span></div>'+
+      '<div class="gcMatch">'+
+        '<div class="gcTeam">'+getFlag(g.aCountry,30)+
+          '<div><div style="font-size:13px;font-weight:600;'+(aWin?'color:var(--gold)':'')+'">'+esc(g.aCountry)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted)">'+esc(g.aName||'')+'</div></div></div>'+
+        '<div class="gcScore"><div class="sc">'+g.aScore+'–'+g.bScore+'</div>'+
+          '<div class="pts">+'+g.aPts+' / +'+g.bPts+'</div></div>'+
+        '<div class="gcTeam away">'+getFlag(g.bCountry,30)+
+          '<div><div style="font-size:13px;font-weight:600;'+(bWin?'color:var(--gold)':'')+'">'+esc(g.bCountry)+'</div>'+
+          '<div style="font-size:11px;color:var(--muted)">'+esc(g.bName||'')+'</div></div></div>'+
+      '</div>'+
+      (IS_ADMIN?'<div class="gcAdmin"><button class="icoBtn" data-undo="'+idx+'">↶ Undo</button></div>':'')+
+    '</div>';
+  }
+  return html;
+}
+
+function vResult(){
+  var drawn=STATE.participants.slice().sort(function(a,b){return a.country.localeCompare(b.country);});
+  if(drawn.length<2)return'<div class="panel"><h3>Record a result</h3><p class="hint">At least two participants needed.</p></div>';
+  var opts='';
+  for(var i=0;i<drawn.length;i++){
+    var p=drawn[i];
+    opts+='<option value="'+p.id+'">'+esc(p.country)+' — '+esc(p.name)+'</option>';
+  }
+  var shtml='';
+  var keys=Object.keys(STAGES);
+  for(var k=0;k<keys.length;k++){
+    shtml+='<button data-stage="'+keys[k]+'" class="'+(keys[k]===pickedStage?'on':'')+'">'+STAGES[keys[k]].label+'</button>';
+  }
+  return'<div class="panel">'+
+    '<h3>Record a result</h3>'+
+    '<p class="hint">Pick the stage, the two nations, and the score.</p>'+
+    '<div class="stagePick" id="stagePick">'+shtml+'</div>'+
+    '<div class="vs">'+
+      '<div><label class="fld">Home</label><select id="teamA"><option value="">Select</option>'+opts+'</select></div>'+
+      '<div class="score"><label class="fld">Score</label>'+
+        '<div style="display:flex;gap:6px"><input id="scoreA" type="number" min="0" value="0"/>'+
+        '<div class="dash">–</div><input id="scoreB" type="number" min="0" value="0"/></div></div>'+
+      '<div><label class="fld">Away</label><select id="teamB"><option value="">Select</option>'+opts+'</select></div>'+
+    '</div>'+
+    '<div style="height:16px"></div>'+
+    '<button class="btn gold" id="recordBtn">＋ Add result</button>'+
+    '<div id="resultMsg"></div>'+
+  '</div>';
+}
+
+function vManage(){
+  var list=STATE.participants.slice().sort(function(a,b){return a.name.localeCompare(b.name);});
+  var html='';
+  for(var i=0;i<list.length;i++){
+    var p=list[i];
+    html+='<div class="manageRow">'+
+      '<div class="info">'+getFlag(p.country,24)+
+        '<div><b>'+esc(p.name)+'</b> <span class="country">· '+esc(p.country)+' · '+p.points+'pts</span></div></div>'+
+      '<div class="actions">'+
+        '<button class="icoBtn edit" data-edit="'+p.id+'">✏️ Edit</button>'+
+        '<button class="xBtn" data-remove="'+p.id+'">Remove</button>'+
+      '</div></div>';
+  }
+  return'<div class="panel">'+
+    '<h3>Participants ('+list.length+')</h3>'+
+    '<p class="hint">Edit a participant\'s name or nation. Remove frees their nation back into the pot.</p>'+
+    (html||'<div class="empty">No participants yet.</div>')+
+    '<hr class="divider"/>'+
+    '<button class="btn danger" id="resetBtn">Reset entire tournament</button>'+
+    '<div id="manageMsg"></div>'+
+  '</div>';
+}
+
+function vSync(){
+  var lastSync=STATE.lastSync?('Last sync: '+fmtTime(STATE.lastSync)):'Never synced';
+  return'<div class="panel">'+
+    '<div class="syncPanel">'+
+      '<h4>⚡ Live Auto-Sync</h4>'+
+      '<p>Fetches completed World Cup 2026 results via AI web search, matches them to sweepstake nations, and awards points automatically. Already-logged matches are skipped.</p>'+
+      '<div class="syncRow">'+
+        '<button class="btn gold" id="syncBtn" style="width:auto;padding:11px 22px">⚡ Sync now</button>'+
+        '<div class="syncStatus" id="syncStatus"><span class="dotOff"></span>'+lastSync+'</div>'+
+      '</div>'+
+    '</div>'+
+    '<h3 style="margin-bottom:8px">Sync log</h3>'+
+    '<div class="syncLog" id="syncLog">'+(syncLines.length?syncLines.join('<br>'):'<span class="skip">No syncs yet this session.</span>')+'</div>'+
+    '<hr class="divider"/>'+
+    '<div class="scoring"><b>Scoring:</b> Group win +3 · draw +1 · R32 +5 · R16 +8 · QF +12 · SF +16 · Final +20<br>Each goal: <b>+'+GOAL_PT+'</b></div>'+
+  '</div>';
+}
+
+function vAdmin(){
+  if(IS_ADMIN)return'<div class="panel">'+
+    '<h3>Admin</h3>'+
+    '<p class="hint">You\'re signed in. Use the tabs above to record results, manage participants, or run auto-sync.</p>'+
+    '<div class="scoring">Group win: <b>+3</b> · draw: <b>+1</b> · R32: <b>+5</b> · R16: <b>+8</b><br>QF: <b>+12</b> · SF: <b>+16</b> · Final: <b>+20</b> · Each goal: <b>+'+GOAL_PT+'</b></div>'+
+    '<hr class="divider"/>'+
+    '<button class="btn ghost" id="signoutBtn">Sign out of admin</button>'+
+  '</div>';
+  return'<div class="panel">'+
+    '<h3>Admin sign-in</h3>'+
+    '<p class="hint">Enter the admin code to unlock result recording, participant management, and auto-sync.</p>'+
+    '<label class="fld">Admin code</label>'+
+    '<input id="adminCode" type="password" placeholder="••••••••"/>'+
+    '<div style="height:12px"></div>'+
+    '<button class="btn gold" id="adminBtn">Unlock admin</button>'+
+    '<div id="adminMsg"></div>'+
+  '</div>';
+}
+
+function editModalHtml(){
+  var p=null;
+  if(editingId){
+    for(var i=0;i<STATE.participants.length;i++){if(STATE.participants[i].id===editingId){p=STATE.participants[i];break;}}
+  }
+  var used=usedCountries();
+  var opts='';
+  for(var j=0;j<COUNTRIES.length;j++){
+    var c=COUNTRIES[j];
+    var taken=used.indexOf(c.n)>=0&&(!p||p.country!==c.n);
+    opts+='<option value="'+c.n+'" '+(p&&p.country===c.n?'selected':'')+' '+(taken?'disabled':'')+'>'+c.n+(taken?' (taken)':'')+'</option>';
+  }
+  return'<div class="modalBg '+(editingId?'open':'')+'" id="editModal">'+
+    '<div class="modal">'+
+      '<h3>Edit Participant</h3>'+
+      '<div class="field"><label class="fld">Name</label><input id="editName" value="'+(p?esc(p.name):'')+'" maxlength="40"/></div>'+
+      '<div class="field"><label class="fld">Assigned nation</label><select id="editCountry">'+opts+'</select></div>'+
+      '<div class="field"><label class="fld">Points (manual override)</label><input id="editPoints" type="number" min="0" value="'+(p?p.points:0)+'"/></div>'+
+      '<div id="editMsg"></div>'+
+      '<div class="modalBtns">'+
+        '<button class="btn ghost" id="editCancel">Cancel</button>'+
+        '<button class="btn gold" id="editSave">Save changes</button>'+
+      '</div></div></div>';
+}
+
+/* ===== WIRING ===== */
+function wireAll(){
+  var tabs=document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++){
+    (function(t){t.onclick=function(){activeTab=t.getAttribute("data-tab");showTab(activeTab);};})(tabs[i]);
+  }
+  var el;
+  el=document.getElementById("joinBtn");if(el)el.onclick=doJoin;
+  el=document.getElementById("joinName");if(el)el.onkeydown=function(e){if(e.key==="Enter")doJoin();};
+  el=document.getElementById("refreshBtn");if(el)el.onclick=function(){loadState().then(function(){render();showTab("table");});};
+  var lfs=document.querySelectorAll("[data-lf]");
+  for(var a=0;a<lfs.length;a++){
+    (function(b){b.onclick=function(){logFilter=b.getAttribute("data-lf");render();showTab("games");};})(lfs[a]);
+  }
+  var uds=document.querySelectorAll("[data-undo]");
+  for(var u=0;u<uds.length;u++){
+    (function(b){b.onclick=function(){undoByIdx(parseInt(b.getAttribute("data-undo"),10));};})(uds[u]);
+  }
+  var sps=document.querySelectorAll("#stagePick button");
+  for(var s=0;s<sps.length;s++){
+    (function(b){b.onclick=function(){
+      pickedStage=b.getAttribute("data-stage");
+      var all=document.querySelectorAll("#stagePick button");
+      for(var x=0;x<all.length;x++)all[x].classList.toggle("on",all[x].getAttribute("data-stage")===pickedStage);
+    };})(sps[s]);
+  }
+  el=document.getElementById("recordBtn");if(el)el.onclick=recordResult;
+  var eds=document.querySelectorAll("[data-edit]");
+  for(var e1=0;e1<eds.length;e1++){
+    (function(b){b.onclick=function(){editingId=b.getAttribute("data-edit");render();showTab("manage");};})(eds[e1]);
+  }
+  var rms=document.querySelectorAll("[data-remove]");
+  for(var r1=0;r1<rms.length;r1++){
+    (function(b){b.onclick=function(){removeParticipant(b.getAttribute("data-remove"));};})(rms[r1]);
+  }
+  el=document.getElementById("resetBtn");if(el)el.onclick=resetAll;
+  el=document.getElementById("syncBtn");if(el)el.onclick=doSync;
+  el=document.getElementById("adminBtn");if(el)el.onclick=unlockAdmin;
+  el=document.getElementById("adminCode");if(el)el.onkeydown=function(e){if(e.key==="Enter")unlockAdmin();};
+  el=document.getElementById("signoutBtn");if(el)el.onclick=signOut;
+  el=document.getElementById("editCancel");if(el)el.onclick=function(){editingId=null;render();showTab("manage");};
+  el=document.getElementById("editSave");if(el)el.onclick=saveEdit;
+  el=document.getElementById("editModal");
+  if(el)el.onclick=function(e){if(e.target===el){editingId=null;render();showTab("manage");}};
+}
+
+function showTab(name){
+  if((name==="result"||name==="manage"||name==="sync")&&!IS_ADMIN)name="table";
+  activeTab=name;
+  var tabs=document.querySelectorAll(".tab");
+  for(var i=0;i<tabs.length;i++)tabs[i].classList.toggle("active",tabs[i].getAttribute("data-tab")===name);
+  var views=document.querySelectorAll(".view");
+  for(var j=0;j<views.length;j++)views[j].classList.remove("active");
+  var v=document.getElementById("v-"+name);
+  if(v)v.classList.add("active");
+}
+
+/* ===== ACTIONS ===== */
+function doJoin(){
+  var inp=document.getElementById("joinName");
+  var name=inp.value.trim();
+  if(!name)return msg("joinMsg","Please enter your name first.","err");
+  for(var i=0;i<STATE.participants.length;i++){
+    if(STATE.participants[i].name.toLowerCase()===name.toLowerCase())
+      return msg("joinMsg","Someone called "+esc(name)+" has already joined.","err");
+  }
+  var used=usedCountries();
+  var pool=COUNTRIES.filter(function(c){return used.indexOf(c.n)<0;});
+  if(!pool.length)return msg("joinMsg","Every nation has been drawn — the pot is empty.","err");
+  var pick=pool[Math.floor(Math.random()*pool.length)];
+  STATE.participants.push({id:"p_"+Date.now()+"_"+Math.floor(Math.random()*9999),name:name,country:pick.n,flag:pick.f,points:0});
+  saveState().then(function(){
+    inp.value="";
+    document.getElementById("joinMsg").innerHTML="";
+    document.getElementById("joinReveal").innerHTML='<div class="reveal">'+
+      '<div class="pot">The pot has chosen…</div>'+
+      '<div style="margin:10px 0 6px;display:inline-block;animation:drawIn 0.7s cubic-bezier(.2,.8,.25,1.4) both">'+getFlag(pick.n,92)+'</div>'+
+      '<div class="ctry">'+esc(pick.n)+'</div>'+
+      '<div class="who"><b>'+esc(name)+'</b>, you\'re playing for '+esc(pick.n)+'!</div></div>';
+    fireConfetti();
+  });
+}
+
+function recordResult(){
+  var aId=document.getElementById("teamA").value;
+  var bId=document.getElementById("teamB").value;
+  var aScore=parseInt(document.getElementById("scoreA").value,10);
+  var bScore=parseInt(document.getElementById("scoreB").value,10);
+  if(!aId||!bId)return msg("resultMsg","Select both nations.","err");
+  if(aId===bId)return msg("resultMsg","A nation can't play itself.","err");
+  if(isNaN(aScore)||isNaN(bScore)||aScore<0||bScore<0)return msg("resultMsg","Enter a valid score.","err");
+  var st=STAGES[pickedStage];
+  if(pickedStage!=="group"&&aScore===bScore)
+    return msg("resultMsg",st.label+" matches can't be level — enter result after ET/pens.","err");
+  addResult(aId,bId,aScore,bScore,pickedStage,false,null);
+  saveState().then(function(){
+    msg("resultMsg","Result logged successfully.","ok");
+    document.getElementById("scoreA").value=0;
+    document.getElementById("scoreB").value=0;
+    fireConfetti();
+  });
+}
+
+function findP(id){
+  for(var i=0;i<STATE.participants.length;i++){if(STATE.participants[i].id===id)return STATE.participants[i];}
+  return null;
+}
+
+function addResult(aId,bId,aScore,bScore,stage,auto,matchId){
+  var st=STAGES[stage]||STAGES.group;
+  var A=findP(aId),B=findP(bId);
+  if(!A||!B)return;
+  var aPts=aScore*GOAL_PT,bPts=bScore*GOAL_PT;
+  if(aScore>bScore)aPts+=st.win;
+  else if(bScore>aScore)bPts+=st.win;
+  else{aPts+=st.draw;bPts+=st.draw;}
+  A.points+=aPts;B.points+=bPts;
+  STATE.log.push({stage:stage,aId:aId,bId:bId,aScore:aScore,bScore:bScore,aPts:aPts,bPts:bPts,
+    aCountry:A.country,bCountry:B.country,aName:A.name,bName:B.name,t:Date.now(),auto:!!auto,matchId:matchId||null});
+}
+
+function undoByIdx(idx){
+  if(idx<0||idx>=STATE.log.length)return;
+  if(!confirm("Undo this result? Points will be reversed."))return;
+  var g=STATE.log[idx];
+  var A=findP(g.aId),B=findP(g.bId);
+  if(A)A.points-=g.aPts;
+  if(B)B.points-=g.bPts;
+  STATE.log.splice(idx,1);
+  saveState().then(function(){render();showTab("games");});
+}
+
+/* ===== AUTO SYNC ===== */
+function doSync(){
+  var btn=document.getElementById("syncBtn");
+  var statusEl=document.getElementById("syncStatus");
+  var logEl=document.getElementById("syncLog");
+  if(btn){btn.disabled=true;btn.textContent="⏳ Fetching…";}
+  if(statusEl)statusEl.innerHTML='<span class="dot"></span>Searching…';
+
+  var nations=STATE.participants.map(function(p){return p.country+" ("+p.name+")";}).join(", ");
+  var logged=STATE.log.filter(function(g){return g.auto&&g.matchId;}).map(function(g){return g.matchId;});
+
+  var prompt="You are a World Cup 2026 results assistant. Today is "+new Date().toDateString()+".\n\n"+
+    "The FIFA World Cup 2026 is in progress. Search the web for completed (full-time) World Cup 2026 matches.\n\n"+
+    "Sweepstake nations: "+nations+"\n\n"+
+    "Return ONLY a valid JSON array of completed matches involving ANY of these nations. Each object:\n"+
+    '{"matchId":"HOME_vs_AWAY_YYYY-MM-DD","home":"country name","away":"country name","homeScore":0,"awayScore":0,"stage":"group"}\n\n'+
+    'stage must be one of: group, r32, r16, qf, sf, final.\n'+
+    "Rules: Only FULLY COMPLETED matches. Skip these already-logged IDs: "+JSON.stringify(logged)+"\n"+
+    "Return [] if nothing new. ONLY the JSON array, no explanation, no markdown.";
+
+  var newLines=[];
+  fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({
+      model:"claude-sonnet-4-20250514",
+      max_tokens:1000,
+      tools:[{type:"web_search_20250305",name:"web_search"}],
+      messages:[{role:"user",content:prompt}]
+    })
+  }).then(function(resp){return resp.json();})
+  .then(function(data){
+    var text="";
+    if(data&&data.content){
+      for(var i=0;i<data.content.length;i++){
+        if(data.content[i].type==="text")text+=data.content[i].text;
+      }
+    }
+    if(!text)throw new Error("No response from AI");
+    text=text.replace(/```json|```/gi,"").trim();
+    var start=text.indexOf("["),end=text.lastIndexOf("]");
+    if(start===-1||end===-1)throw new Error("No results data found");
+    var matches=JSON.parse(text.slice(start,end+1));
+    if(!matches.length){
+      newLines.push('<span class="skip">No new completed matches found.</span>');
+    }else{
+      var added=0;
+      for(var m=0;m<matches.length;m++){
+        var match=matches[m];
+        var A=null,B=null;
+        for(var p=0;p<STATE.participants.length;p++){
+          var pp=STATE.participants[p];
+          if(match.home&&pp.country.toLowerCase()===match.home.toLowerCase())A=pp;
+          if(match.away&&pp.country.toLowerCase()===match.away.toLowerCase())B=pp;
+        }
+        if(!A&&!B){continue;}
+        var dup=false;
+        if(match.matchId){
+          for(var l=0;l<STATE.log.length;l++){if(STATE.log[l].matchId===match.matchId){dup=true;break;}}
+        }
+        if(dup){newLines.push('<span class="skip">⏭ Already logged: '+esc(match.home)+' '+match.homeScore+'–'+match.awayScore+' '+esc(match.away)+'</span>');continue;}
+        if(A&&B){
+          addResult(A.id,B.id,match.homeScore,match.awayScore,match.stage||"group",true,match.matchId);
+          var last=STATE.log[STATE.log.length-1];
+          newLines.push('<span class="added">✅ '+esc(A.country)+' '+match.homeScore+'–'+match.awayScore+' '+esc(B.country)+' → '+esc(A.name)+' +'+last.aPts+', '+esc(B.name)+' +'+last.bPts+'</span>');
+        }else{
+          var real=A||B;
+          var realScore=A?match.homeScore:match.awayScore;
+          var oppScore=A?match.awayScore:match.homeScore;
+          var oppName=A?match.away:match.home;
+          var st=STAGES[match.stage]||STAGES.group;
+          var pts=realScore*GOAL_PT;
+          if(realScore>oppScore)pts+=st.win;
+          else if(realScore===oppScore)pts+=st.draw;
+          real.points+=pts;
+          STATE.log.push({stage:match.stage||"group",aId:real.id,bId:"ext",aScore:realScore,bScore:oppScore,
+            aPts:pts,bPts:0,aCountry:real.country,bCountry:oppName,aName:real.name,bName:"",t:Date.now(),auto:true,matchId:match.matchId||null});
+          newLines.push('<span class="added">✅ '+esc(real.country)+' '+realScore+'–'+oppScore+' '+esc(oppName)+' → '+esc(real.name)+' +'+pts+'pts</span>');
+        }
+        added++;
+      }
+      if(added===0)newLines.push('<span class="skip">All found matches were already logged.</span>');
+      else{newLines.push('<span class="added">— '+added+' new result'+(added===1?'':'s')+' added —</span>');fireConfetti();}
+    }
+    STATE.lastSync=Date.now();
+    return saveState();
+  })
+  .then(function(){
+    if(statusEl)statusEl.innerHTML='<span class="dot"></span>Last sync: just now';
+  })
+  .catch(function(err){
+    newLines.push('<span class="warn">⚠ '+esc(err.message)+'</span>');
+    if(statusEl)statusEl.innerHTML='<span class="dotOff"></span>Sync failed';
+  })
+  .then(function(){
+    syncLines=newLines.concat(syncLines).slice(0,50);
+    if(logEl)logEl.innerHTML=syncLines.join('<br>');
+    if(btn){btn.disabled=false;btn.textContent="⚡ Sync now";}
+  });
+}
+
+function saveEdit(){
+  var p=findP(editingId);
+  if(!p)return;
+  var newName=document.getElementById("editName").value.trim();
+  var newCountry=document.getElementById("editCountry").value;
+  var newPoints=parseInt(document.getElementById("editPoints").value,10);
+  if(!newName)return msg("editMsg","Name can't be empty.","err");
+  if(!newCountry)return msg("editMsg","Select a nation.","err");
+  for(var i=0;i<STATE.participants.length;i++){
+    var o=STATE.participants[i];
+    if(o.id!==editingId&&o.name.toLowerCase()===newName.toLowerCase())
+      return msg("editMsg","Another participant already has that name.","err");
+  }
+  var c=findCountry(newCountry);
+  p.name=newName;p.country=newCountry;p.flag=c?c.f:p.flag;
+  if(!isNaN(newPoints))p.points=Math.max(0,newPoints);
+  for(var l=0;l<STATE.log.length;l++){
+    var g=STATE.log[l];
+    if(g.aId===p.id){g.aCountry=p.country;g.aName=p.name;}
+    if(g.bId===p.id){g.bCountry=p.country;g.bName=p.name;}
+  }
+  saveState().then(function(){
+    editingId=null;render();showTab("manage");
+    setTimeout(function(){msg("manageMsg","Changes saved.","ok");},50);
+  });
+}
+
+function removeParticipant(id){
+  var p=findP(id);
+  if(!p)return;
+  if(!confirm("Remove "+p.name+" ("+p.country+")?"))return;
+  STATE.participants=STATE.participants.filter(function(x){return x.id!==id;});
+  saveState().then(function(){render();showTab("manage");});
+}
+
+function resetAll(){
+  if(!confirm("Reset the ENTIRE tournament? All data will be wiped and re-seeded."))return;
+  if(!confirm("Are you absolutely sure?"))return;
+  STATE={participants:[],log:[]};
+  for(var i=0;i<SEED.length;i++){
+    var s=SEED[i];
+    var c=findCountry(s.country);
+    STATE.participants.push({id:"p_"+i+"_"+Math.floor(Math.random()*100000),name:s.name,country:s.country,flag:c?c.f:"🏳",points:0});
+  }
+  saveState().then(function(){render();showTab("manage");
+    setTimeout(function(){msg("manageMsg","Tournament reset & re-seeded with "+SEED.length+" participants.","info");},50);});
+}
+
+function unlockAdmin(){
+  if(document.getElementById("adminCode").value.trim()===ADMIN_CODE){
+    IS_ADMIN=true;
+    sSet("admin","yes",false).then(function(){render();showTab("manage");});
+  }else msg("adminMsg","That code isn't right.","err");
+}
+function signOut(){
+  IS_ADMIN=false;
+  sSet("admin","no",false).then(function(){render();showTab("admin");});
+}
+
+function msg(id,text,type){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML='<div class="msg '+type+'">'+text+'</div>';
+  if(type!=="err")setTimeout(function(){if(el)el.innerHTML="";},7000);
+}
+
+function fireConfetti(){
+  var cv=document.getElementById("confetti");
+  if(!cv)return;
+  var ctx=cv.getContext("2d");
+  cv.width=window.innerWidth;cv.height=window.innerHeight;
+  var cols=["#F2C14E","#1FB873","#EAF2EC","#169063","#C99A2E"];
+  var pts=[];
+  for(var i=0;i<120;i++){
+    pts.push({x:window.innerWidth/2+(Math.random()-.5)*100,y:window.innerHeight*.32,
+      vx:(Math.random()-.5)*11,vy:Math.random()*-13-4,r:Math.random()*6+3,
+      c:cols[Math.floor(Math.random()*cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.4,life:0});
+  }
+  var fr=0;
+  function tick(){
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var alive=false;
+    for(var i=0;i<pts.length;i++){
+      var p=pts[i];
+      p.vy+=.4;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;p.life++;
+      if(p.y<window.innerHeight+30)alive=true;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;
+      ctx.globalAlpha=Math.max(0,1-p.life/90);ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*1.6);ctx.restore();
+    }
+    fr++;
+    if(alive&&fr<130)requestAnimationFrame(tick);
+    else ctx.clearRect(0,0,cv.width,cv.height);
+  }
+  tick();
+}
+
+function poll(){
+  sGet("tournament",true).then(function(raw){
+    if(raw&&raw!==lastSnap){
+      lastSnap=raw;
+      try{var parsed=JSON.parse(raw);if(parsed)STATE=parsed;}catch(e){}
+      if(!STATE.participants)STATE.participants=[];
+      if(!STATE.log)STATE.log=[];
+      if(activeTab==="table"){
+        var lb=document.getElementById("lbList");
+        if(lb)lb.innerHTML=renderRows(byPoints());
+      }
+      if(activeTab==="games"){
+        var g=document.getElementById("gamesLog");
+        if(g){
+          var log=STATE.log.slice().reverse();
+          if(logFilter!=="all")log=log.filter(function(x){return x.stage===logFilter;});
+          g.innerHTML=renderGameCards(log);
+        }
+      }
+    }
+  });
+}
+
+/* ===== INIT ===== */
+loadState().then(function(){
+  lastSnap=JSON.stringify(STATE);
+  render();
+  showTab("table");
+  setInterval(poll,6000);
+}).catch(function(err){
+  document.getElementById("root").innerHTML='<div style="font-family:sans-serif;color:#E2574C;text-align:center;padding:60px 20px">Failed to load: '+err.message+'<br><br><button onclick="location.reload()" style="padding:10px 20px;cursor:pointer">Retry</button></div>';
+});
+
+})();
+</script>
